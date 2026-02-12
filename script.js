@@ -43,3 +43,11 @@ function calculate() {
     });
     document.getElementById('totalDisplay').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
+
+function updateSignature() {
+    const nameInput = document.getElementById('clientName');
+    const signatureText = document.getElementById('clientSignature');
+    if (nameInput && signatureText) {
+        signatureText.innerText = nameInput.value || 'Assinatura do Cliente';
+    }
+}

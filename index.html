@@ -22,9 +22,11 @@
     <div class="main-container max-w-4xl mx-auto bg-white shadow-2xl rounded-sm overflow-hidden border border-gray-200">
         <div class="header-bg p-8 flex flex-col md:flex-row justify-between items-start">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight uppercase">CÉLIO DO NASCIMENTO TORRES</h1>
-                <p class="sub-header uppercase">Pedreiro Independente & Construção Civil</p>
+                <h1 class="text-2xl font-bold tracking-tight uppercase">CONTRUTORRES EMPREENDIMENTOS E CONSTRUÇÃO CIVIL EM GERAL</h1>
+                <p class="sub-header uppercase">Contrutorres</p>
                 <div class="mt-4 space-y-0.5 text-slate-300 text-[11px]">
+                    <p><strong>Responsável:</strong> Célio Torres</p>
+                    <p><strong>Tel:</strong> 16- 99141-3696</p>
                     <p><strong>CNPJ:</strong> 33.116.208/0001-20</p>
                     <p><strong>Endereço:</strong> Rua Francisco Cereda, 266 - Cidade Aracy</p>
                     <p>São Carlos - SP | CEP: 13573-016</p>
@@ -40,12 +42,16 @@
         </div>
 
         <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-gray-50 p-4 rounded">
-                <div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8 bg-gray-50 p-4 rounded">
+                <div class="md:col-span-5">
                     <label class="label-style mb-1">Cliente / Contratante</label>
-                    <input type="text" placeholder="Toque para digitar o nome" class="input-flat font-medium">
+                    <input type="text" id="clientName" oninput="updateSignature()" placeholder="Toque para digitar o nome" class="input-flat font-medium">
                 </div>
-                <div>
+                <div class="md:col-span-3">
+                    <label class="label-style mb-1">CPF / CNPJ</label>
+                    <input type="text" placeholder="Digite o documento" class="input-flat font-medium">
+                </div>
+                <div class="md:col-span-4">
                     <label class="label-style mb-1">Local da Obra</label>
                     <input type="text" placeholder="Toque para digitar o endereço" class="input-flat font-medium">
                 </div>
@@ -99,7 +105,7 @@
                 </div>
                 <div>
                     <div class="border-t border-slate-300 pt-2 w-64 mx-auto">
-                        <p class="text-xs font-bold uppercase text-slate-800">Assinatura do Cliente</p>
+                        <p id="clientSignature" class="text-xs font-bold uppercase text-slate-800">Assinatura do Cliente</p>
                         <p class="text-[9px] text-gray-500 uppercase">Aceite do Orçamento</p>
                     </div>
                 </div>
