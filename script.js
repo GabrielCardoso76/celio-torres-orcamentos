@@ -5,17 +5,17 @@ function addRow() {
     const newRow = document.createElement('tr');
     newRow.className = 'text-gray-700 item-row';
     newRow.innerHTML = `
-        <td class="py-3 px-2">
-            <input type="text" class="input-table font-semibold text-sm" placeholder="Novo Serviço...">
-            <input type="text" class="input-table text-[11px] text-gray-500 mt-0.5" placeholder="Detalhes...">
+        <td class="py-3 px-2" data-label="Descrição do Serviço">
+            <textarea rows="1" oninput="autoResize(this)" class="w-full font-semibold text-sm border-none bg-transparent outline-none resize-none overflow-hidden block" placeholder="Novo Serviço..."></textarea>
+            <textarea rows="1" oninput="autoResize(this)" class="w-full text-[11px] text-gray-500 mt-0.5 border-none bg-transparent outline-none resize-none overflow-hidden block" placeholder="Detalhes..."></textarea>
         </td>
-        <td class="py-3 px-2">
+        <td class="py-3 px-2" data-label="Qtd">
             <input type="number" value="1" oninput="calculate()" class="qty input-num text-center">
         </td>
-        <td class="py-3 px-2">
+        <td class="py-3 px-2" data-label="V. Unitário">
             <input type="number" value="0.00" oninput="calculate()" class="price input-num text-right">
         </td>
-        <td class="py-3 px-2 text-right font-bold text-slate-900 text-sm subtotal">R$ 0,00</td>
+        <td class="py-3 px-2 text-right font-bold text-slate-900 text-sm subtotal" data-label="Subtotal">R$ 0,00</td>
         <td class="py-3 px-2 text-center no-print">
             <button onclick="removeRow(this)" class="text-red-400 hover:text-red-600">✕</button>
         </td>
@@ -51,3 +51,32 @@ function updateSignature() {
         signatureText.innerText = nameInput.value || 'Assinatura do Cliente';
     }
 }
+
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+function togglePreview() {
+    const mainContainer = document.querySelector('.main-container');
+    const previewBtn = document.getElementById('previewBtn');
+
+    if (mainContainer.classList.contains('preview-mode')) {
+        mainContainer.classList.remove('preview-mode');
+        previewBtn.innerText = 'Visualizar Orçamento';
+        previewBtn.classList.remove('bg-purple-800');
+        previewBtn.classList.add('bg-purple-600');
+    } else {
+        mainContainer.classList.add('preview-mode');
+        previewBtn.innerText = 'Editar Orçamento';
+        previewBtn.classList.remove('bg-purple-600');
+        previewBtn.classList.add('bg-purple-800');
+    }
+}
+
+// Initial auto-resize for existing textareas
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('textarea').forEach(textarea => {
+        autoResize(textarea);
+    });
+});
