@@ -54,6 +54,83 @@ body { font-family: 'Inter', sans-serif; }
     text-align: center;
 }
 
+/* Preview Mode */
+.preview-mode {
+    max-width: 100% !important;
+    border: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+.preview-mode .no-print {
+    display: none !important;
+}
+.preview-mode input, .preview-mode textarea, .preview-mode .input-num {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+/* Responsive Table */
+@media screen and (max-width: 768px) {
+    table thead {
+        display: none;
+    }
+
+    table, tbody, tr, td {
+        display: block;
+        width: 100%;
+    }
+
+    .item-row {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 1rem;
+    }
+
+    .item-row td {
+        position: relative;
+        padding-left: 50% !important;
+        text-align: right !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        min-height: 2.5rem;
+    }
+
+    .item-row td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-left: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: 11px;
+        color: #64748b;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    /* Descrição do serviço precisa de layout diferente no mobile */
+    .item-row td:first-child {
+        padding-left: 0 !important;
+        text-align: left !important;
+    }
+    .item-row td:first-child::before {
+        display: none;
+    }
+    .item-row td textarea {
+        text-align: left;
+    }
+
+    .input-num {
+        text-align: right !important;
+    }
+
+    .preview-mode .item-row {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+}
+
 /* Regras de Impressão */
 @media print {
     @page { margin: 0; }
@@ -69,5 +146,9 @@ body { font-family: 'Inter', sans-serif; }
     .header-bg, .total-box { 
         -webkit-print-color-adjust: exact; 
         print-color-adjust: exact;
+    }
+    .input-num, input, textarea {
+        background-color: transparent !important;
+        border-color: transparent !important;
     }
 }
