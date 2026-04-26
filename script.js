@@ -97,14 +97,24 @@ function startSpeechRecognition(targetId) {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
+    let recognizedText = "";
+
     recognition.onresult = function(event) {
-        const text = event.results[0][0].transcript;
+        // Obter apenas o resultado final da fala
+        recognizedText = event.results[0][0].transcript;
+    };
+
+    recognition.onend = function() {
+        if (!recognizedText) return;
         const target = document.getElementById(targetId);
         if (target) {
-            target.value = target.value ? target.value + ' ' + text : text;
-            if (targetId === 'clientName') updateSignature();
+            // Evitar duplicar a última frase exatamente
+            if (!target.value.endsWith(recognizedText)) {
+                target.value = target.value ? target.value + ' ' + recognizedText : recognizedText;
+                if (targetId === 'clientName' || targetId === 'wizClientName') updateSignature();
+            }
         }
-    };
+    }
 
     recognition.onerror = function(event) {
         console.error('Erro de reconhecimento de voz:', event.error);
@@ -122,14 +132,23 @@ function startSpeechRecognitionForRow(btn) {
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
 
+    let recognizedText = "";
+
     recognition.onresult = function(event) {
-        const text = event.results[0][0].transcript;
+        recognizedText = event.results[0][0].transcript;
+    };
+
+    recognition.onend = function() {
+        if (!recognizedText) return;
         const textarea = btn.previousElementSibling;
         if (textarea) {
-            textarea.value = textarea.value ? textarea.value + ' ' + text : text;
-            autoResize(textarea);
+            if (!textarea.value.endsWith(recognizedText)) {
+                textarea.value = textarea.value ? textarea.value + ' ' + recognizedText : recognizedText;
+                autoResize(textarea);
+            }
         }
-    };
+    }
+
     recognition.start();
 }
 
@@ -192,7 +211,14 @@ function addWizardService(proceed) {
 }
 
 function selectMaterial(mat, btn) {
-    selectedMaterial = mat;
+    if (mat.includes('Contratado')) {
+        selectedMaterial = 'contratado';
+    } else if (mat.includes('Contratante')) {
+        selectedMaterial = 'cliente';
+    } else {
+        selectedMaterial = 'misto';
+    }
+
     document.querySelectorAll('.matBtn').forEach(b => {
         b.classList.remove('bg-blue-50', 'border-blue-500');
     });
@@ -212,8 +238,11 @@ function finishWizard() {
     if (doc) document.getElementById('clientDoc').value = doc;
     if (loc) document.getElementById('clientLocation').value = loc;
 
-    // Populate Material
-    document.getElementById('materialText').innerText = selectedMaterial;
+    // Populate Material no texto das observacoes gerais
+    const obsMatElement = document.getElementById('obsMaterial');
+    if (obsMatElement) {
+        obsMatElement.innerText = `• Materiais fornecidos pelo ${selectedMaterial}.`;
+    }
 
     // Populate Services
     if (wizardServices.length > 0) {
@@ -251,4 +280,24 @@ function finishWizard() {
     }
 
     closeWizard();
+}
+
+function customPrint() {
+    const clientName = document.getElementById('clientName').value.trim();
+    const defaultName = clientName ? `Orçamento Célio Torres - ${clientName}` : "Orçamento Célio Torres";
+
+    const fileName = prompt("Salvar arquivo como:", defaultName);
+
+    if (fileName !== null) {
+        const originalTitle = document.title;
+        document.title = fileName; // Altera o titulo para que o navegador sugira este nome
+
+        // Abre o prompt de impressao
+        window.print();
+
+        // Restaura o titulo apos um pequeno delay
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 1000);
+    }
 }

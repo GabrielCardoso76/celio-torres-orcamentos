@@ -16,7 +16,7 @@
                 <button onclick="openWizard()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-2 px-4 rounded text-xs"> Iniciar Assistente </button>
                 <button onclick="togglePreview()" id="previewBtn" class="md:hidden bg-purple-600 text-white font-bold py-2 px-4 rounded text-xs"> Visualizar Orçamento </button>
                 <button onclick="addRow()" class="bg-green-600 text-white font-bold py-2 px-4 rounded text-xs"> + Item </button>
-                <button onclick="window.print()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded text-xs"> Imprimir / PDF </button>
+                <button onclick="customPrint()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded text-xs"> Imprimir / PDF </button>
             </div>
         </div>
     </div>
@@ -93,9 +93,11 @@
 
             <div class="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
                 <div class="w-full md:w-1/2">
-                    <h3 class="label-style border-b pb-1 mb-2">Material</h3>
-                    <div id="materialText" contenteditable="true" class="text-[11px] font-semibold text-gray-600 leading-relaxed outline-none">
-                        Material não especificado.
+                    <h3 class="label-style border-b pb-1 mb-2">Observações Gerais</h3>
+                    <div contenteditable="true" class="text-[10px] font-semibold text-gray-600 leading-relaxed outline-none">
+                        <p>• Mão de obra especializada com garantia de alinhamento.</p>
+                        <p id="obsMaterial">• Materiais fornecidos pelo cliente.</p>
+                        <p>• Pagamento efetuado após a conclusão do serviço.</p>
                     </div>
                 </div>
                 <div class="total-box shadow-xl">
@@ -130,47 +132,36 @@
             </div>
 
             <div class="p-6 overflow-y-auto" id="wizardStep1">
-                <p class="mb-4 text-slate-700 font-medium">Deseja informar o nome do cliente?</p>
-                <div class="flex gap-4 mb-4">
-                    <button onclick="document.getElementById('wizClientNameContainer').classList.remove('hidden')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Sim</button>
-                    <button onclick="nextWizardStep(2)" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Não</button>
-                </div>
-                <div id="wizClientNameContainer" class="hidden mb-4 relative">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Cliente</label>
+                <p class="mb-4 text-slate-700 font-medium">Informe o nome do cliente:</p>
+                <div id="wizClientNameContainer" class="mb-4 relative">
                     <div class="flex items-center border rounded">
                         <input type="text" id="wizClientName" class="w-full p-2 outline-none text-sm" placeholder="Digite ou fale...">
                         <button onclick="startSpeechRecognition('wizClientName')" class="px-3 text-slate-400 hover:text-blue-500">🎤</button>
                     </div>
                 </div>
-                <div class="flex justify-end mt-4">
+                <div class="flex justify-between mt-4">
+                    <button onclick="nextWizardStep(2)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Não / Pular</button>
                     <button onclick="nextWizardStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Próximo</button>
                 </div>
             </div>
 
             <div class="p-6 hidden overflow-y-auto" id="wizardStep2">
-                <p class="mb-4 text-slate-700 font-medium">Deseja informar o CPF/CNPJ?</p>
-                <div class="flex gap-4 mb-4">
-                    <button onclick="document.getElementById('wizClientDocContainer').classList.remove('hidden')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Sim</button>
-                    <button onclick="nextWizardStep(3)" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Não</button>
-                </div>
-                <div id="wizClientDocContainer" class="hidden mb-4">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">CPF ou CNPJ</label>
+                <p class="mb-4 text-slate-700 font-medium">Informe o CPF/CNPJ:</p>
+                <div id="wizClientDocContainer" class="mb-4">
                     <input type="text" id="wizClientDoc" class="w-full p-2 border rounded outline-none text-sm" placeholder="Digite o documento...">
                 </div>
                 <div class="flex justify-between mt-4">
                     <button onclick="prevWizardStep(1)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Voltar</button>
-                    <button onclick="nextWizardStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Próximo</button>
+                    <div class="flex gap-2">
+                        <button onclick="nextWizardStep(3)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Pular</button>
+                        <button onclick="nextWizardStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Próximo</button>
+                    </div>
                 </div>
             </div>
 
             <div class="p-6 hidden overflow-y-auto" id="wizardStep3">
-                <p class="mb-4 text-slate-700 font-medium">Deseja informar o local da obra?</p>
-                <div class="flex gap-4 mb-4">
-                    <button onclick="document.getElementById('wizClientLocationContainer').classList.remove('hidden')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Sim</button>
-                    <button onclick="nextWizardStep(4)" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-bold">Não</button>
-                </div>
-                <div id="wizClientLocationContainer" class="hidden mb-4 relative">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Local da Obra</label>
+                <p class="mb-4 text-slate-700 font-medium">Informe o local da obra:</p>
+                <div id="wizClientLocationContainer" class="mb-4 relative">
                     <div class="flex items-center border rounded">
                         <input type="text" id="wizClientLocation" class="w-full p-2 outline-none text-sm" placeholder="Digite ou fale o endereço...">
                         <button onclick="startSpeechRecognition('wizClientLocation')" class="px-3 text-slate-400 hover:text-blue-500">🎤</button>
@@ -178,28 +169,31 @@
                 </div>
                 <div class="flex justify-between mt-4">
                     <button onclick="prevWizardStep(2)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Voltar</button>
-                    <button onclick="nextWizardStep(4)" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Próximo</button>
+                    <div class="flex gap-2">
+                        <button onclick="nextWizardStep(4)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Pular</button>
+                        <button onclick="nextWizardStep(4)" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Próximo</button>
+                    </div>
                 </div>
             </div>
 
             <div class="p-6 hidden overflow-y-auto" id="wizardStep4">
                 <p class="mb-4 text-slate-700 font-medium border-b pb-2">Cadastro de Serviço</p>
-                <div class="space-y-4">
-                    <div class="relative">
+                <div class="space-y-4 md:space-y-0 md:flex md:gap-4 md:items-end">
+                    <div class="relative md:w-3/5">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
                         <div class="flex items-center border rounded">
                             <textarea id="wizServiceDesc" rows="2" class="w-full p-2 outline-none text-sm resize-none" placeholder="Digite ou fale..."></textarea>
                             <button onclick="startSpeechRecognition('wizServiceDesc')" class="px-3 text-slate-400 hover:text-blue-500">🎤</button>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-1/3">
+                    <div class="flex gap-4 md:w-2/5">
+                        <div class="w-1/3 md:w-1/2">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd</label>
-                            <input type="number" id="wizServiceQty" class="w-full p-2 border rounded outline-none text-sm" value="1">
+                            <input type="number" id="wizServiceQty" class="w-full p-2 border rounded outline-none text-sm" value="1" style="height: 38px;">
                         </div>
-                        <div class="w-2/3">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Unitário</label>
-                            <input type="number" id="wizServicePrice" class="w-full p-2 border rounded outline-none text-sm" placeholder="Ex: 50.00">
+                        <div class="w-2/3 md:w-1/2">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Unit.</label>
+                            <input type="number" id="wizServicePrice" class="w-full p-2 border rounded outline-none text-sm" placeholder="Ex: 50.00" style="height: 38px;">
                         </div>
                     </div>
                 </div>
@@ -221,7 +215,7 @@
                 <div class="flex flex-col gap-2 mb-4">
                     <button onclick="selectMaterial('Fornecido pelo Contratado', this)" class="matBtn border border-gray-300 hover:bg-gray-100 px-4 py-3 rounded text-sm font-bold text-left">Fornecido pelo Contratado</button>
                     <button onclick="selectMaterial('Fornecido pelo Contratante', this)" class="matBtn border border-gray-300 hover:bg-gray-100 px-4 py-3 rounded text-sm font-bold text-left">Fornecido pelo Contratante</button>
-                    <button onclick="selectMaterial('Misto / A definir', this)" class="matBtn border border-gray-300 hover:bg-gray-100 px-4 py-3 rounded text-sm font-bold text-left">Misto / Outro</button>
+                    <button onclick="selectMaterial('Misto / Ambos', this)" class="matBtn border border-gray-300 hover:bg-gray-100 px-4 py-3 rounded text-sm font-bold text-left">Misto / Outro</button>
                 </div>
                 <div class="flex justify-between mt-6">
                     <button onclick="prevWizardStep(4)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Voltar</button>
