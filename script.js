@@ -241,7 +241,11 @@ function finishWizard() {
     // Populate Material no texto das observacoes gerais
     const obsMatElement = document.getElementById('obsMaterial');
     if (obsMatElement) {
-        obsMatElement.innerText = `• Materiais fornecidos pelo ${selectedMaterial}.`;
+        if (selectedMaterial === 'misto') {
+            obsMatElement.innerText = `• O cliente tem alguns materiais, porém o contratado arca com outros.`;
+        } else {
+            obsMatElement.innerText = `• Materiais fornecidos pelo ${selectedMaterial}.`;
+        }
     }
 
     // Populate Services

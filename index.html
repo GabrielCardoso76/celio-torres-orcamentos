@@ -178,22 +178,22 @@
 
             <div class="p-6 hidden overflow-y-auto" id="wizardStep4">
                 <p class="mb-4 text-slate-700 font-medium border-b pb-2">Cadastro de Serviço</p>
-                <div class="space-y-4 md:space-y-0 md:flex md:gap-4 md:items-end">
-                    <div class="relative md:w-3/5">
+                <div class="space-y-4">
+                    <div class="relative w-full">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
-                        <div class="flex items-center border rounded">
-                            <textarea id="wizServiceDesc" rows="2" class="w-full p-2 outline-none text-sm resize-none" placeholder="Digite ou fale..."></textarea>
-                            <button onclick="startSpeechRecognition('wizServiceDesc')" class="px-3 text-slate-400 hover:text-blue-500">🎤</button>
+                        <div class="flex items-start border rounded p-1">
+                            <textarea id="wizServiceDesc" rows="3" class="w-full p-2 outline-none text-sm resize-y min-h-[60px]" placeholder="Digite ou fale a descrição completa do serviço..."></textarea>
+                            <button onclick="startSpeechRecognition('wizServiceDesc')" class="px-3 py-2 text-slate-400 hover:text-blue-500 self-stretch flex items-center">🎤</button>
                         </div>
                     </div>
-                    <div class="flex gap-4 md:w-2/5">
-                        <div class="w-1/3 md:w-1/2">
+                    <div class="flex gap-4 w-full">
+                        <div class="w-1/3">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd</label>
-                            <input type="number" id="wizServiceQty" class="w-full p-2 border rounded outline-none text-sm" value="1" style="height: 38px;">
+                            <input type="number" id="wizServiceQty" class="w-full p-3 border rounded outline-none text-sm" value="1">
                         </div>
-                        <div class="w-2/3 md:w-1/2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Unit.</label>
-                            <input type="number" id="wizServicePrice" class="w-full p-2 border rounded outline-none text-sm" placeholder="Ex: 50.00" style="height: 38px;">
+                        <div class="w-2/3">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Unitário</label>
+                            <input type="number" id="wizServicePrice" class="w-full p-3 border rounded outline-none text-sm" placeholder="Ex: 50.00">
                         </div>
                     </div>
                 </div>
