@@ -29,10 +29,14 @@ body { font-family: 'Inter', sans-serif; }
 }
 
 /* HTML2PDF Export rules */
-.html2pdf-export .no-print {
+.html2pdf-export .no-print,
+.html2pdf__container .no-print,
+.is-exporting-pdf .no-print {
     display: none !important;
 }
-.html2pdf-export input {
+.html2pdf-export input,
+.html2pdf__container input,
+.is-exporting-pdf input {
     border-bottom: none !important;
     background: transparent !important;
 }
