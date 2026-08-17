@@ -160,6 +160,9 @@ function downloadMaterialsPDF() {
 
     const element = document.getElementById('materialsPDFContainer');
 
+    // Add generating-pdf class to ensure all .no-print elements (buttons, inputs) are hidden in PDF canvas
+    element.classList.add('generating-pdf');
+
     // Options for html2pdf
     const opt = {
         margin:       [8, 8, 8, 8],
@@ -169,9 +172,12 @@ function downloadMaterialsPDF() {
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Generate PDF
-    html2pdf().set(opt).from(element).save().catch(err => {
+    // Generate PDF and clean up class
+    html2pdf().set(opt).from(element).save().then(() => {
+        element.classList.remove('generating-pdf');
+    }).catch(err => {
         console.error('Erro ao gerar PDF:', err);
+        element.classList.remove('generating-pdf');
         alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
     });
 }

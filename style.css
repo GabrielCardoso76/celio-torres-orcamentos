@@ -28,13 +28,21 @@ body { font-family: 'Inter', sans-serif; }
     white-space: nowrap;
 }
 
-/* HTML2PDF Export rules */
+/* HTML2PDF & Print Export rules */
+.generating-pdf .no-print,
 .html2pdf-export .no-print {
     display: none !important;
 }
-.html2pdf-export input {
+
+.generating-pdf .input-flat,
+.html2pdf-export .input-flat {
     border-bottom: none !important;
     background: transparent !important;
+}
+
+.generating-pdf input::placeholder,
+.html2pdf-export input::placeholder {
+    color: transparent !important;
 }
 
 /* Cabeçalho */
