@@ -159,6 +159,9 @@ function downloadMaterialsPDF() {
     const filename = cleanServiceName ? `Pedido_de_Materiais_-_${cleanServiceName}.pdf` : 'Pedido_de_Materiais.pdf';
 
     const element = document.getElementById('materialsPDFContainer');
+    if (element) {
+        element.classList.add('is-exporting-pdf');
+    }
 
     // Options for html2pdf
     const opt = {
@@ -173,6 +176,10 @@ function downloadMaterialsPDF() {
     html2pdf().set(opt).from(element).save().catch(err => {
         console.error('Erro ao gerar PDF:', err);
         alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
+    }).finally(() => {
+        if (element) {
+            element.classList.remove('is-exporting-pdf');
+        }
     });
 }
 
