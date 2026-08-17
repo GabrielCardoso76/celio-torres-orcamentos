@@ -5,23 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orçador - Célio Torres</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-100 p-2 md:p-6 text-slate-900">
 
-    <div class="max-w-4xl mx-auto mb-4 p-4 bg-white rounded-lg shadow-md border-l-4 border-blue-600 no-print">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-2">
-            <p class="text-xs text-gray-500 italic">Preencha os campos e clique para gerar o PDF.</p>
-            <div class="flex gap-2 flex-wrap justify-center">
-                <button onclick="openWizard()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-2 px-4 rounded text-xs"> Iniciar Assistente </button>
-                <button onclick="togglePreview()" id="previewBtn" class="md:hidden bg-purple-600 text-white font-bold py-2 px-4 rounded text-xs"> Visualizar Orçamento </button>
-                <button onclick="addRow()" class="bg-green-600 text-white font-bold py-2 px-4 rounded text-xs"> + Item </button>
-                <button onclick="customPrint()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded text-xs"> Imprimir / PDF </button>
-            </div>
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto mb-4 bg-white rounded-lg shadow-md overflow-hidden no-print">
+        <div class="flex border-b border-gray-200">
+            <button id="tabBudgetBtn" onclick="switchTab('budget')" class="flex-1 py-3 px-4 text-center font-bold text-sm sm:text-base tab-active transition-colors flex items-center justify-center gap-2">
+                <span>📋</span> Orçador
+            </button>
+            <button id="tabMaterialsBtn" onclick="switchTab('materials')" class="flex-1 py-3 px-4 text-center font-bold text-sm sm:text-base text-gray-500 hover:text-slate-800 transition-colors flex items-center justify-center gap-2">
+                <span>📦</span> Pedido de Materiais
+            </button>
         </div>
     </div>
 
-    <div class="main-container max-w-4xl mx-auto bg-white shadow-2xl rounded-sm overflow-hidden border border-gray-200">
+    <!-- View 1: Orçador -->
+    <div id="budgetView">
+        <div class="max-w-4xl mx-auto mb-4 p-4 bg-white rounded-lg shadow-md border-l-4 border-blue-600 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+                <p class="text-xs text-gray-500 italic">Preencha os campos e clique para gerar o PDF.</p>
+                <div class="flex gap-2 flex-wrap justify-center">
+                    <button onclick="openWizard()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-2 px-4 rounded text-xs"> Iniciar Assistente </button>
+                    <button onclick="togglePreview()" id="previewBtn" class="md:hidden bg-purple-600 text-white font-bold py-2 px-4 rounded text-xs"> Visualizar Orçamento </button>
+                    <button onclick="addRow()" class="bg-green-600 text-white font-bold py-2 px-4 rounded text-xs"> + Item </button>
+                    <button onclick="customPrint()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded text-xs"> Imprimir / PDF </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-container max-w-4xl mx-auto bg-white shadow-2xl rounded-sm overflow-hidden border border-gray-200">
         <div class="header-bg p-8 flex flex-col md:flex-row justify-between items-start">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight uppercase">CONTRUTORRES EMPREENDIMENTOS E CONSTRUÇÃO CIVIL EM GERAL</h1>
@@ -123,6 +138,92 @@
         </div>
         <div class="bg-gray-50 p-4 text-center text-[9px] text-gray-400 uppercase tracking-widest"> Qualidade e Honestidade na sua Obra. </div>
     </div>
+    </div> <!-- End of budgetView -->
+
+    <!-- View 2: Pedido de Materiais -->
+    <div id="materialsView" class="hidden">
+        <!-- Action bar for Materials View -->
+        <div class="max-w-4xl mx-auto mb-4 p-4 bg-white rounded-lg shadow-md border-l-4 border-green-600 no-print">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <p class="text-xs text-gray-500 italic">Adicione os materiais por voz ou texto e baixe o relatório em PDF.</p>
+                <button onclick="downloadMaterialsPDF()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-5 rounded-lg shadow text-xs flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Baixar PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Printable / PDF Target Container for Materials -->
+        <div id="materialsPDFContainer" class="main-container max-w-4xl mx-auto bg-white shadow-2xl rounded-sm overflow-hidden border border-gray-200">
+            <!-- Header section matching budget view style -->
+            <div class="header-bg p-6 md:p-8 flex flex-col md:flex-row justify-between items-start gap-4">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight uppercase">CONTRUTORRES EMPREENDIMENTOS E CONSTRUÇÃO CIVIL EM GERAL</h1>
+                    <p class="sub-header uppercase">Contrutorres</p>
+                    <div class="mt-4 space-y-0.5 text-slate-300 text-[11px]">
+                        <p><strong>Responsável:</strong> Célio Torres</p>
+                        <p><strong>Tel:</strong> 16- 99141-3696</p>
+                        <p><strong>CNPJ:</strong> 33.116.208/0001-20</p>
+                        <p><strong>Endereço:</strong> Rua Francisco Cereda, 266 - Cidade Aracy</p>
+                        <p>São Carlos - SP | CEP: 13573-016</p>
+                    </div>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right md:border-l md:border-slate-600 md:pl-6">
+                    <h2 class="text-lg md:text-xl font-light text-slate-100 uppercase leading-snug">Relatório de materiais<br class="hidden md:inline"> para orçar</h2>
+                    <div class="mt-2 text-slate-400 text-[11px]">
+                        <p>Data: <span id="materialsCurrentDate"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 md:p-8">
+                <!-- Service description input field -->
+                <div class="mb-6 bg-gray-50 p-4 rounded border border-gray-100">
+                    <label class="label-style mb-1">Serviço / Referência</label>
+                    <div class="flex items-center">
+                        <input type="text" id="matServiceField" placeholder="Ex: Parede de Drywall, Forro de Gesso, Pintura..." class="input-flat font-medium flex-1">
+                        <button onclick="startSpeechRecognition('matServiceField')" class="ml-2 text-slate-400 hover:text-slate-600 focus:outline-none no-print text-lg" title="Falar Serviço">🎤</button>
+                    </div>
+                </div>
+
+                <!-- Input area for adding material items (Voice + Text) -->
+                <div class="mb-6 no-print bg-blue-50/60 p-4 rounded-lg border border-blue-100 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Adicionar Material</label>
+                    <div class="flex flex-col sm:flex-row items-stretch gap-2">
+                        <div class="relative flex-1 flex items-center">
+                            <input type="text" id="matItemInput" placeholder="Ex: 10 placas de gesso ST, 5 montantes 48mm..." onkeypress="if(event.key==='Enter'){addMaterialItem();}" class="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-3 pr-10 text-sm focus:outline-none focus:border-blue-500 shadow-sm">
+                            <button type="button" id="micMatBtn" onclick="toggleVoiceInputForMaterials()" class="absolute right-2 p-1.5 text-slate-500 hover:text-blue-600 rounded-full transition-colors focus:outline-none" title="Falar material">
+                                🎤
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="addMaterialItem()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-lg text-xs shadow transition-colors">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                    <p id="speechStatus" class="text-[11px] text-blue-600 mt-2 font-semibold hidden flex items-center gap-1.5">
+                        <span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                        Ouvindo... Fale o item (ele será inserido automaticamente ao pausar).
+                    </p>
+                </div>
+
+                <!-- Material items list container -->
+                <div class="mb-8">
+                    <h3 class="label-style border-b pb-2 mb-4 text-slate-700 text-xs">Lista de Materiais</h3>
+                    <ol id="materialsList" class="space-y-2 list-decimal list-inside text-slate-800 text-sm md:text-base font-medium">
+                        <!-- Items rendered dynamically -->
+                    </ol>
+                    <div id="emptyMaterialsMsg" class="py-8 text-center text-slate-400 text-xs italic bg-gray-50 rounded border border-dashed border-gray-200">
+                        Nenhum material adicionado ainda. Use o campo acima para falar ou digitar seus materiais.
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 text-center text-[9px] text-gray-400 uppercase tracking-widest"> Qualidade e Honestidade na sua Obra. </div>
+        </div>
+    </div>
+
     <!-- Wizard Modal -->
     <div id="wizardModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
