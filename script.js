@@ -1,4 +1,180 @@
-document.getElementById('currentDate').innerText = new Date().toLocaleDateString('pt-BR');
+const formattedDate = new Date().toLocaleDateString('pt-BR');
+if (document.getElementById('currentDate')) {
+    document.getElementById('currentDate').innerText = formattedDate;
+}
+if (document.getElementById('materialsCurrentDate')) {
+    document.getElementById('materialsCurrentDate').innerText = formattedDate;
+}
+
+// Tab Navigation Logic
+function switchTab(tab) {
+    const budgetView = document.getElementById('budgetView');
+    const materialsView = document.getElementById('materialsView');
+    const tabBudgetBtn = document.getElementById('tabBudgetBtn');
+    const tabMaterialsBtn = document.getElementById('tabMaterialsBtn');
+
+    if (tab === 'materials') {
+        budgetView.classList.add('hidden');
+        materialsView.classList.remove('hidden');
+
+        tabMaterialsBtn.classList.add('tab-active');
+        tabMaterialsBtn.classList.remove('text-gray-500');
+        tabBudgetBtn.classList.remove('tab-active');
+        tabBudgetBtn.classList.add('text-gray-500');
+    } else {
+        materialsView.classList.add('hidden');
+        budgetView.classList.remove('hidden');
+
+        tabBudgetBtn.classList.add('tab-active');
+        tabBudgetBtn.classList.remove('text-gray-500');
+        tabMaterialsBtn.classList.remove('tab-active');
+        tabMaterialsBtn.classList.add('text-gray-500');
+    }
+}
+
+// Materials Request List Logic
+let materialsListItems = [];
+
+function addMaterialItem(customText) {
+    const inputEl = document.getElementById('matItemInput');
+    const itemText = (customText !== undefined ? customText : inputEl.value).trim();
+
+    if (!itemText) return;
+
+    materialsListItems.push(itemText);
+    if (inputEl) inputEl.value = '';
+
+    renderMaterialsList();
+}
+
+function removeMaterialItem(index) {
+    materialsListItems.splice(index, 1);
+    renderMaterialsList();
+}
+
+function renderMaterialsList() {
+    const listEl = document.getElementById('materialsList');
+    const emptyMsgEl = document.getElementById('emptyMaterialsMsg');
+
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+
+    if (materialsListItems.length === 0) {
+        if (emptyMsgEl) emptyMsgEl.classList.remove('hidden');
+        return;
+    }
+
+    if (emptyMsgEl) emptyMsgEl.classList.add('hidden');
+
+    materialsListItems.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between py-2 px-3 bg-slate-50 hover:bg-slate-100 rounded border border-slate-200 transition-colors group';
+
+        // Escape item text to prevent HTML injection
+        const safeItemText = item.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        li.innerHTML = `
+            <span class="flex-1 pr-3 font-semibold text-slate-800 break-words">${safeItemText}</span>
+            <button onclick="removeMaterialItem(${index})" class="no-print text-red-400 hover:text-red-600 font-bold px-2 py-1 rounded text-sm transition-colors focus:outline-none" title="Remover item">
+                ❌
+            </button>
+        `;
+        listEl.appendChild(li);
+    });
+}
+
+// Voice Input specifically for Materials List
+let matSpeechRecognition = null;
+let isListeningForMaterials = false;
+
+function toggleVoiceInputForMaterials() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Seu navegador não suporta reconhecimento de voz.");
+        return;
+    }
+
+    const speechStatus = document.getElementById('speechStatus');
+    const micBtn = document.getElementById('micMatBtn');
+    const inputEl = document.getElementById('matItemInput');
+
+    if (isListeningForMaterials && matSpeechRecognition) {
+        matSpeechRecognition.stop();
+        return;
+    }
+
+    matSpeechRecognition = new SpeechRecognition();
+    matSpeechRecognition.lang = 'pt-BR';
+    matSpeechRecognition.interimResults = false;
+    matSpeechRecognition.maxAlternatives = 1;
+
+    let recognizedText = "";
+
+    matSpeechRecognition.onstart = function() {
+        isListeningForMaterials = true;
+        if (speechStatus) speechStatus.classList.remove('hidden');
+        if (micBtn) micBtn.classList.add('text-red-500', 'animate-pulse');
+    };
+
+    matSpeechRecognition.onresult = function(event) {
+        recognizedText = event.results[0][0].transcript;
+        if (inputEl) {
+            inputEl.value = recognizedText;
+        }
+    };
+
+    matSpeechRecognition.onerror = function(event) {
+        console.error('Erro de reconhecimento de voz:', event.error);
+        if (speechStatus) speechStatus.classList.add('hidden');
+        if (micBtn) micBtn.classList.remove('text-red-500', 'animate-pulse');
+        isListeningForMaterials = false;
+    };
+
+    matSpeechRecognition.onend = function() {
+        isListeningForMaterials = false;
+        if (speechStatus) speechStatus.classList.add('hidden');
+        if (micBtn) micBtn.classList.remove('text-red-500', 'animate-pulse');
+
+        // Automatically add the item if text was recognized
+        if (recognizedText.trim() !== '') {
+            addMaterialItem(recognizedText);
+        }
+    };
+
+    matSpeechRecognition.start();
+}
+
+// PDF Generation using html2pdf.js
+function downloadMaterialsPDF() {
+    if (typeof html2pdf === 'undefined') {
+        alert("Biblioteca html2pdf.js não foi carregada. Verifique sua conexão com a internet.");
+        return;
+    }
+
+    const serviceField = document.getElementById('matServiceField');
+    const serviceName = serviceField ? serviceField.value.trim() : '';
+    const cleanServiceName = serviceName.replace(/[^a-zA-Z0-9_ -]/g, '');
+    const filename = cleanServiceName ? `Pedido_de_Materiais_-_${cleanServiceName}.pdf` : 'Pedido_de_Materiais.pdf';
+
+    const element = document.getElementById('materialsPDFContainer');
+
+    // Options for html2pdf
+    const opt = {
+        margin:       [8, 8, 8, 8],
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Generate PDF
+    html2pdf().set(opt).from(element).save().catch(err => {
+        console.error('Erro ao gerar PDF:', err);
+        alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
+    });
+}
 
 function addRow() {
     const tbody = document.getElementById('itemsBody');

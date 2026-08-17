@@ -2,6 +2,41 @@
 
 body { font-family: 'Inter', sans-serif; }
 
+/* Navigation Tab Active Styling */
+.tab-active {
+    background-color: #1e293b;
+    color: #ffffff !important;
+    border-bottom: 3px solid #eab308;
+}
+
+/* List Item Numbering for PDF and Screen */
+#materialsList {
+    counter-reset: item;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#materialsList li {
+    counter-increment: item;
+}
+
+#materialsList li::before {
+    content: "Item " counter(item) ". ";
+    font-weight: 700;
+    color: #1e293b;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+/* HTML2PDF Export rules */
+.html2pdf-export .no-print {
+    display: none !important;
+}
+.html2pdf-export input {
+    border-bottom: none !important;
+    background: transparent !important;
+}
+
 /* Cabeçalho */
 .header-bg {
     background-color: #1e293b;
