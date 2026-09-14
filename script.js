@@ -540,7 +540,12 @@ function customPrint() {
 }
 
 // --- Persistence Service Layer (budgetService) ---
-const STORAGE_KEY = 'orcador_budgets_v1';
+const LEGACY_STORAGE_KEY = 'orcador_budgets_v1';
+const LEGACY_MIGRATION_KEY = 'orcador_budgets_supabase_migrated';
+const supabaseClient = window.supabase.createClient(
+    CONFIG.SUPABASE_URL,
+    CONFIG.SUPABASE_PUBLISHABLE_KEY
+);
 
 function generateBudgetId(clientName, dateStr) {
     let nameSlug = (clientName || 'cliente')
@@ -565,76 +570,86 @@ function generateBudgetId(clientName, dateStr) {
     return `${nameSlug}-${formattedDate}-${randomSeq}`;
 }
 
+function mapBudgetRow(row) {
+    if (!row) return null;
+    return {
+        ...row,
+        clientName: row.clientname,
+        clientDoc: row.clientdoc,
+        clientLocation: row.clientlocation,
+        createdAt: row.createdat,
+        updatedAt: row.updatedat
+    };
+}
+
 const budgetService = {
     async getAll() {
-        return new Promise((resolve) => {
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                const budgets = data ? JSON.parse(data) : [];
-                budgets.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                resolve(budgets);
-            } catch (err) {
-                console.error('Erro ao ler orçamentos do localStorage:', err);
-                resolve([]);
+        await this.migrateLegacyData();
+        const { data, error } = await supabaseClient
+            .from('budgets')
+            .select('*')
+            .order('updatedat', { ascending: false });
+
+        if (error) throw error;
+        return (data || []).map(mapBudgetRow);
+    },
+
+    async migrateLegacyData() {
+        if (localStorage.getItem(LEGACY_MIGRATION_KEY)) return;
+
+        try {
+            const stored = localStorage.getItem(LEGACY_STORAGE_KEY);
+            const legacyBudgets = stored ? JSON.parse(stored) : [];
+            for (const budget of legacyBudgets) {
+                await this.save(budget);
             }
-        });
+            localStorage.setItem(LEGACY_MIGRATION_KEY, 'true');
+        } catch (error) {
+            console.warn('Não foi possível migrar os orçamentos locais:', error);
+        }
     },
 
     async getById(id) {
-        return new Promise(async (resolve) => {
-            const budgets = await this.getAll();
-            const budget = budgets.find(b => b.id === id) || null;
-            resolve(budget);
-        });
+        const { data, error } = await supabaseClient
+            .from('budgets')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) throw error;
+        return mapBudgetRow(data);
     },
 
     async save(budgetData) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const budgets = await this.getAll();
-                const now = new Date().toISOString();
+        const now = new Date().toISOString();
+        const id = budgetData.id || generateBudgetId(budgetData.clientName, budgetData.date);
+        const payload = {
+            id,
+            clientname: budgetData.clientName || '',
+            clientdoc: budgetData.clientDoc || '',
+            clientlocation: budgetData.clientLocation || '',
+            date: budgetData.date || '',
+            items: budgetData.items || [],
+            obs: budgetData.obs || '',
+            total: budgetData.total || 0,
+            createdat: budgetData.createdAt || now,
+            updatedat: now
+        };
 
-                if (!budgetData.id) {
-                    budgetData.id = generateBudgetId(budgetData.clientName, budgetData.date);
-                    budgetData.createdAt = now;
-                    budgetData.updatedAt = now;
-                    budgets.push(budgetData);
-                } else {
-                    const index = budgets.findIndex(b => b.id === budgetData.id);
-                    if (index !== -1) {
-                        budgetData.updatedAt = now;
-                        if (!budgetData.createdAt) {
-                            budgetData.createdAt = budgets[index].createdAt || now;
-                        }
-                        budgets[index] = budgetData;
-                    } else {
-                        budgetData.createdAt = now;
-                        budgetData.updatedAt = now;
-                        budgets.push(budgetData);
-                    }
-                }
+        const { data, error } = await supabaseClient
+            .from('budgets')
+            .upsert(payload)
+            .select()
+            .single();
 
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(budgets));
-                resolve(budgetData);
-            } catch (err) {
-                console.error('Erro ao salvar orçamento:', err);
-                reject(err);
-            }
-        });
+        if (error) throw error;
+        return mapBudgetRow(data);
     },
 
     async delete(id) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let budgets = await this.getAll();
-                budgets = budgets.filter(b => b.id !== id);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(budgets));
-                resolve(true);
-            } catch (err) {
-                console.error('Erro ao excluir orçamento:', err);
-                reject(err);
-            }
-        });
+        const { error } = await supabaseClient.from('budgets').delete().eq('id', id);
+        if (error) throw error;
+        return true;
     },
 
     async duplicate(id) {
