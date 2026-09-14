@@ -853,7 +853,15 @@ async function renderMyBudgetsList(filterText = '') {
 
     listEl.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">Carregando orçamentos...</div>';
 
-    const budgets = await budgetService.getAll();
+    let budgets;
+    try {
+        budgets = await budgetService.getAll();
+    } catch (error) {
+        console.error('Erro ao carregar orçamentos do Supabase:', error);
+        listEl.innerHTML = '<div class="p-8 text-center text-red-600 text-sm">Não foi possível acessar os orçamentos. Verifique as políticas de acesso da tabela no Supabase.</div>';
+        if (emptyMsgEl) emptyMsgEl.classList.add('hidden');
+        return;
+    }
     const query = filterText.toLowerCase().trim();
 
     const filtered = budgets.filter(b => {
