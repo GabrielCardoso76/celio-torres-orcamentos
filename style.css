@@ -170,16 +170,37 @@ body { font-family: 'Inter', sans-serif; }
     }
 }
 
+/* Quebras de Página e Regras para Impressão / PDF */
+.page-break-avoid,
+.item-row,
+tr,
+.total-box,
+#totalDisplay,
+.signature-block,
+.obs-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
 /* Regras de Impressão */
 @media print {
-    @page { margin: 0; }
-    body { background-color: white !important; margin: 0 !important; padding: 0 !important; }
-    .no-print { display: none !important; }
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+    body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .no-print {
+        display: none !important;
+    }
     .main-container {
         max-width: 100% !important;
         border: none !important;
         margin: 0 !important;
-        padding: 1.5cm !important;
+        padding: 1cm !important;
         box-shadow: none !important;
     }
     .header-bg, .total-box { 
